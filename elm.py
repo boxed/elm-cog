@@ -7,7 +7,7 @@ def parse_list(items):
     return [x.strip() for x in items.split(',')]
 
 
-def _list_of(name, items, *, single_line=False, start_char='[', end_char=']', end_of_definition_line='=', item_separator_char=',', prefix=None, suffix=None, compact_single_line_form=False, last_item=True):
+def _list_of(name, items, *, single_line=False, start_char='[', end_char=']', end_of_definition_line='=', item_separator_char=',', prefix=None, suffix='', compact_single_line_form=False, last_item=True):
     newline = '\n' if not single_line else ''
     tab = '    ' if not single_line else ' '
     if single_line and compact_single_line_form:
@@ -25,19 +25,16 @@ def _list_of(name, items, *, single_line=False, start_char='[', end_char=']', en
     if name:
         r += f'{name}'
 
-    if suffix:
-        r += suffix
-
     if not items:
-        r += f' = {start_char}{end_char}{newline}'
+        r += f' = {start_char}{end_char}{suffix}{newline}'
     else:
         if end_of_definition_line:
             if name:
-                r += f' ={" " if not newline else ""}{newline}'
+                r += f' ={" " if not newline else ""}{suffix}{newline}'
             else:
-                r += f'{newline}'
+                r += f'{newline}{suffix}'
         else:
-            r += f'{newline}'
+            r += f'{newline}{suffix}'
 
         r += f'{tab}{start_char}{"" if single_line and start_char == "[" else " "}{items[0]}{newline}'
 
@@ -123,9 +120,14 @@ def record(name, definition, *, single_line=False, last_item=True):
 def _enhanced_enum(name, definition, rows, *, last_item=True):
     enum_definition = [x.partition(':')[0].capitalize().strip() for x in parse_list(definition)]
     r = _enum(name, enum_definition, last_item=False)
-    r += _record_alias(name + '_row', definition)
-    items = [_record('', row, last_item=False) for row in rows]
-    r += _list_of(name=name.lower(), items=items, suffix=' = Dict.fromList', last_item=last_item)
+    assert enum_definition == list(rows.keys())
+    r += _record_alias(name + '_row', definition, last_item=False)
+
+    def to_str(value):
+        return " ".join([f'"{x}"' if isinstance(x, str) else f'{x}' for x in value])
+
+    items = [f'({key}, {name} {to_str(value)})' for key, value in rows.items()]
+    r += _list_of(name=name.lower(), items=items, suffix=' Dict.fromList', last_item=last_item)
     return r
 
 

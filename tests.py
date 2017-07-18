@@ -96,7 +96,15 @@ foo =
 
 def test_enhanced_enum():
     reset()
-    enhanced_enum('Foo', 'a : Int, b : Float, c : String', [])
+    enhanced_enum(
+        'Foo',
+        'a : Int, b : Float, c : String',
+        dict(
+            A=(1, 1.5, "3"),
+            B=(2, 2.5, "4"),
+            C=(3, 3.5, "5"),
+        )
+    )
     assert """
 
 type Foo
