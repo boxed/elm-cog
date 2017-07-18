@@ -9,8 +9,10 @@ Features:
 - Lists
 - Union types
 - Enums (A union type + a list that are always in sync)
+- Record alias
+- Record
+
 
 Planned:
 
-- Records
-- Tables (A record that defines a row, and a list of records)
+- Enhanced enums: an enum with an associated Dict for extra data
