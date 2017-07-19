@@ -1,0 +1,15 @@
+#!/usr/bin/env python3
+
+from cogapp import Cog
+
+import os
+from os.path import join
+
+paths = []
+
+for root, dirs, files in os.walk('.'):
+    for filename in files:
+        if filename.endswith('.elm'):
+            paths.append(join(root, filename))
+
+Cog().main(['-p', 'from elm import *', '-r'] + paths)

@@ -7,11 +7,12 @@ def parse_list(items):
     return [x.strip() for x in items.split(',')]
 
 
-def _list_of(name, items, *, single_line=False, start_char='[', end_char=']', end_of_definition_line='=', item_separator_char=',', prefix=None, suffix='', compact_single_line_form=False, last_item=True):
+def _list_of(name, items, *, single_line=False, start_char='[', end_char=']', end_of_definition_line='=', item_separator_char=',', prefix=None, suffix='', last_item=True):
     newline = '\n' if not single_line else ''
-    tab = '    ' if not single_line else ' '
-    if single_line and compact_single_line_form:
-        tab = ''
+    tab = '    '
+    before_separator = tab
+    if single_line:
+        before_separator = ''
 
     r = ''
     r += f'{newline}{newline}'
@@ -26,23 +27,23 @@ def _list_of(name, items, *, single_line=False, start_char='[', end_char=']', en
         r += f'{name}'
 
     if not items:
-        r += f' = {start_char}{end_char}{suffix}{newline}'
+        r += f' = {start_char}{end_char}{suffix}\n'
     else:
         if end_of_definition_line:
             if name:
-                r += f' ={" " if not newline else ""}{suffix}{newline}'
+                r += f' ={suffix}\n'
             else:
                 r += f'{newline}{suffix}'
         else:
             r += f'{newline}{suffix}'
 
-        r += f'{tab}{start_char}{"" if single_line and start_char == "[" else " "}{items[0]}{newline}'
+        r += f'{tab}{start_char} {items[0]}{newline}'
 
         for item in items[1:]:
-            r += f'{tab}{item_separator_char} {item}{newline}'
+            r += f'{before_separator}{item_separator_char} {item}{newline}'
 
         if end_char:
-            r += f'{tab}{end_char}{newline}'
+            r += f'{tab if not single_line else " "}{" " if not tab else ""}{end_char}{newline}'
 
     if last_item:
         r += f'\n\n\n'
@@ -50,7 +51,7 @@ def _list_of(name, items, *, single_line=False, start_char='[', end_char=']', en
     return r
 
 
-def list_of(name, items, *, single_line=False, start_char='[', end_char=']', end_of_definition_line='=', item_separator_char=',', compact_single_line_form=True, prefix=None, last_item=True):
+def list_of(name, items, *, single_line=False, start_char='[', end_char=']', end_of_definition_line='=', item_separator_char=',', prefix=None, last_item=True):
     cog.out(_list_of(
         name=name,
         items=items,
@@ -59,7 +60,6 @@ def list_of(name, items, *, single_line=False, start_char='[', end_char=']', end
         end_char=end_char,
         end_of_definition_line=end_of_definition_line,
         item_separator_char=item_separator_char,
-        compact_single_line_form=compact_single_line_form,
         prefix=prefix,
         last_item=last_item,
     ))
@@ -86,7 +86,8 @@ def union(name, definition, *, single_line=False, last_item=True):
 def _enum(name, definition, *, last_item=True):
     r = _union(name, definition, last_item=False)
     r += '\n\n'
-    r += _list_of(name.lower() + '_list', definition, single_line=True, compact_single_line_form=True, last_item=last_item)
+    r += _list_of(name.lower() + '_list', definition, single_line=True, last_item=last_item)
+    r += '\n'
     return r
 
 
