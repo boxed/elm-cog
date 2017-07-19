@@ -117,10 +117,9 @@ def record(name, definition, *, single_line=False, last_item=True):
     cog.out(_record(name=name, definition=definition, single_line=single_line, last_item=last_item))
 
 
-def _enhanced_enum(name, definition, rows, *, last_item=True):
-    enum_definition = [x.partition(':')[0].capitalize().strip() for x in parse_list(definition)]
+def _enhanced_enum(name, enum_definition, definition, rows, *, last_item=True):
     r = _enum(name, enum_definition, last_item=False)
-    assert enum_definition == list(rows.keys())
+    assert len(parse_list(enum_definition)) == len(rows.keys())
     r += _record_alias(name + '_row', definition, last_item=False)
 
     def to_str(value):
@@ -131,5 +130,5 @@ def _enhanced_enum(name, definition, rows, *, last_item=True):
     return r
 
 
-def enhanced_enum(name, definition, rows, last_item=True):
-    cog.out(_enhanced_enum(name=name, definition=definition, rows=rows, last_item=last_item))
+def enhanced_enum(name, enum_definition, definition, rows, last_item=True):
+    cog.out(_enhanced_enum(name=name, enum_definition=enum_definition, definition=definition, rows=rows, last_item=last_item))

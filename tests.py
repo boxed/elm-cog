@@ -98,7 +98,8 @@ def test_enhanced_enum():
     reset()
     enhanced_enum(
         'Foo',
-        'a : Int, b : Float, c : String',
+        'A, B, C',
+        'some_data1 : Int, some_data2 : Float, display_name : String',
         dict(
             A=(1, 1.5, "3"),
             B=(2, 2.5, "4"),
@@ -116,9 +117,9 @@ type Foo
 foo_list = [A, B, C]
 
 type alias Foo_row =
-    { a : Int
-    , b : Float
-    , c : String
+    { some_data1 : Int
+    , some_data2 : Float
+    , display_name : String
     }
 
 
