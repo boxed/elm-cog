@@ -12,4 +12,4 @@ for root, dirs, files in os.walk('.'):
         if filename.endswith('.elm'):
             paths.append(join(root, filename))
 
-Cog().main(['-p', 'from elm import *', '-r'] + paths)
+Cog().main(['executable_path_is_irrelevant', '-p', 'from elm import *', '-r'] + paths)
