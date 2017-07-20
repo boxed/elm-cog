@@ -20,8 +20,15 @@ foo =
 
 def test_list_of_single_line():
     reset()
-    list_of('foo', 'A, B, C', single_line=True, last_item=False)
-    assert """foo = [A, B, C]""" == result()
+    list_of('foo', 'A, B, C', single_line=True)
+    assert """
+
+foo =
+    [ A, B, C ]
+
+
+
+""" == result()
 
 
 def test_union():
@@ -39,12 +46,6 @@ type Foo
 """ == result()
 
 
-def test_union_single_line():
-    reset()
-    union('Foo', 'A, B, C', single_line=True, last_item=False)
-    assert """type Foo = A | B | C""" == result()
-
-
 def test_enum():
     reset()
     enum('Foo', 'A, B, C')
@@ -56,7 +57,8 @@ type Foo
     | C
 
 
-foo_list = [A, B, C]
+foo_list = [ A, B, C ]
+
 
 
 """ == result()
@@ -114,7 +116,8 @@ type Foo
     | C
 
 
-foo_list = [A, B, C]
+foo_list = [ A, B, C ]
+
 
 type alias Foo_row =
     { some_data1 : Int

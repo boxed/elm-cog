@@ -95,11 +95,12 @@ type alias Foo_row =
     }
 
 
-foo = Dict.fromList
-    [ (A, Foo 1 1.5 "3")
-    , (B, Foo 2 2.5 "4")
-    , (C, Foo 3 3.5 "5")
-    ]
+foo =
+    Dict.fromList
+        [ ( A, Foo 1 1.5 "3" )
+        , ( B, Foo 2 2.5 "4" )
+        , ( C, Foo 3 3.5 "5" )
+        ]
 
 
 

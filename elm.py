@@ -7,129 +7,137 @@ def parse_list(items):
     return [x.strip() for x in items.split(',')]
 
 
-def _list_of(name, items, *, single_line=False, start_char='[', end_char=']', end_of_definition_line='=', item_separator_char=',', prefix=None, suffix='', last_item=True):
-    newline = '\n' if not single_line else ''
-    tab = '    '
-    before_separator = tab
-    if single_line:
-        before_separator = ''
+def indent(s):
+    lines = s.split('\n')
+    return '\n'.join(['    ' + x if x else '' for x in lines])
 
-    r = ''
-    r += f'{newline}{newline}'
 
-    if prefix:
-        r += prefix
+def elm_whitespace(f):
+    def wrapper(*args, **kwargs):
+        cog.out('\n\n')
+        f(*args, **kwargs)
+        cog.out('\n\n\n\n')
+    return wrapper
 
+
+def _list_single_line(items, *, start_char='[', end_char=']', item_separator_char=','):
     if not isinstance(items, list):
         items = parse_list(items)
 
-    if name:
-        r += f'{name}'
-
     if not items:
-        r += f' = {start_char}{end_char}{suffix}\n'
-    else:
-        if end_of_definition_line:
-            if name:
-                r += f' ={suffix}\n'
-            else:
-                r += f'{newline}{suffix}'
-        else:
-            r += f'{newline}{suffix}'
+        return f'{start_char}{end_char}'
 
-        r += f'{tab}{start_char} {items[0]}{newline}'
+    r = ''
 
-        for item in items[1:]:
-            r += f'{before_separator}{item_separator_char} {item}{newline}'
+    r += f'{start_char} {items[0]}'
 
-        if end_char:
-            r += f'{tab if not single_line else " "}{" " if not tab else ""}{end_char}{newline}'
+    for item in items[1:]:
+        r += f'{item_separator_char} {item}'
 
-    if last_item:
-        r += f'\n\n\n'
+    if end_char:
+        r += f' {end_char}'
 
     return r
 
 
-def list_of(name, items, *, single_line=False, start_char='[', end_char=']', end_of_definition_line='=', item_separator_char=',', prefix=None, last_item=True):
-    cog.out(_list_of(
-        name=name,
+def _list(items, *, start_char='[', end_char=']', item_separator_char=','):
+    if not isinstance(items, list):
+        items = parse_list(items)
+
+    if not items:
+        return f'{start_char}{end_char}\n'
+
+    r = ''
+
+    r += f'{start_char} {items[0]}'
+
+    for item in items[1:]:
+        r += f'\n{item_separator_char} {item}'
+
+    if end_char:
+        r += f'\n{end_char}'
+
+    return r
+
+
+@elm_whitespace
+def list_of(name, items, *, start_char='[', end_char=']', item_separator_char=',', single_line=False):
+    cog.outl(f'{name} =')
+    f = _list_single_line if single_line else _list
+    cog.out(indent(f(
         items=items,
-        single_line=single_line,
         start_char=start_char,
         end_char=end_char,
-        end_of_definition_line=end_of_definition_line,
         item_separator_char=item_separator_char,
-        prefix=prefix,
-        last_item=last_item,
+    )))
+
+
+def _union(name, definition):
+    return f'type {name}\n' + indent(_list(
+        items=definition,
+        start_char='=',
+        end_char='',
+        item_separator_char='|',
     ))
 
 
-def _union(name, definition, *, single_line=False, last_item=True):
-    return _list_of(
-        name=name,
-        items=definition,
-        prefix='type ',
-        start_char='=',
-        end_char='',
-        end_of_definition_line='',
-        item_separator_char='|',
-        single_line=single_line,
-        last_item=last_item,
-    )
+@elm_whitespace
+def union(name, definition):
+    cog.out(_union(name=name, definition=definition))
 
 
-def union(name, definition, *, single_line=False, last_item=True):
-    cog.out(_union(name=name, definition=definition, single_line=single_line, last_item=last_item))
+def _enum(name, definition):
+    return f"""{_union(name, definition)}
 
 
-def _enum(name, definition, *, last_item=True):
-    r = _union(name, definition, last_item=False)
-    r += '\n\n'
-    r += _list_of(name.lower() + '_list', definition, single_line=True, last_item=last_item)
-    r += '\n'
-    return r
+{name.lower()}_list = {_list_single_line(definition)}"""
 
 
-def enum(name, definition, *, last_item=True):
-    cog.out(_enum(name=name, definition=definition, last_item=last_item))
+@elm_whitespace
+def enum(name, definition):
+    cog.out(_enum(name=name, definition=definition))
     
 
-def _record_alias(name, definition, *, last_item=True):
-    return _list_of(
-        name=name,
+def _record_alias(name, definition):
+    return f'type alias {name} =\n' + indent(_list(
         items=definition,
         start_char='{',
         end_char='}',
-        prefix='type alias ',
-        last_item=last_item,
-    )
+    ))
 
 
-def record_alias(name, definition, *, last_item=True):
-    cog.out(_record_alias(name=name, definition=definition, last_item=last_item))
+@elm_whitespace
+def record_alias(name, definition):
+    cog.out(_record_alias(name=name, definition=definition))
 
 
-def _record(name, definition, *, single_line=False, last_item=True):
-    return _list_of(name, definition, single_line=single_line, start_char='{', end_char='}', last_item=last_item)
+def _record(name, definition):
+    return _list(definition, start_char='{', end_char='}')
 
 
-def record(name, definition, *, single_line=False, last_item=True):
-    cog.out(_record(name=name, definition=definition, single_line=single_line, last_item=last_item))
+@elm_whitespace
+def record(name, definition):
+    cog.out(f'{name} =\n' + indent(_record(name=name, definition=definition)))
 
 
-def _enhanced_enum(name, enum_definition, definition, rows, *, last_item=True):
-    r = _enum(name, enum_definition, last_item=False)
+def _enhanced_enum(name, enum_definition, definition, rows):
+    r = _enum(name, enum_definition)
     assert len(parse_list(enum_definition)) == len(rows.keys())
-    r += _record_alias(name + '_row', definition, last_item=False)
+
+    r += '\n\n\n'
+
+    r += _record_alias(name + '_row', definition)
+
+    r += '\n\n\n'
 
     def to_str(value):
         return " ".join([f'"{x}"' if isinstance(x, str) else f'{x}' for x in value])
 
     items = [f'({key}, {name} {to_str(value)})' for key, value in rows.items()]
-    r += _list_of(name=name.lower(), items=items, suffix=' Dict.fromList', last_item=last_item)
+    r += f'{name.lower()} = Dict.fromList\n' + indent(_list(items=items))
     return r
 
 
-def enhanced_enum(name, enum_definition, definition, rows, last_item=True):
-    cog.out(_enhanced_enum(name=name, enum_definition=enum_definition, definition=definition, rows=rows, last_item=last_item))
+@elm_whitespace
+def enhanced_enum(name, enum_definition, definition, rows):
+    cog.out(_enhanced_enum(name=name, enum_definition=enum_definition, definition=definition, rows=rows))
