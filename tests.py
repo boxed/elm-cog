@@ -2,6 +2,11 @@ from cog import reset, result
 from elm import *
 
 
+def test_indent():
+    assert indent('') == ''
+    assert indent('a\nb') == '    a\n    b'
+
+
 def test_list_of():
     reset()
     list_of('foo', 'A, B, C')
@@ -57,7 +62,8 @@ type Foo
     | C
 
 
-foo_list = [ A, B, C ]
+foo_list =
+    [ A, B, C ]
 
 
 
@@ -116,7 +122,8 @@ type Foo
     | C
 
 
-foo_list = [ A, B, C ]
+foo_list =
+    [ A, B, C ]
 
 
 type alias Foo_row =
@@ -126,11 +133,11 @@ type alias Foo_row =
     }
 
 
-foo = Dict.fromList
-    [ (A, Foo 1 1.5 "3")
-    , (B, Foo 2 2.5 "4")
-    , (C, Foo 3 3.5 "5")
-    ]
+foo_data input =
+    case input of
+        A -> Foo 1 1.5 "3"
+        B -> Foo 2 2.5 "4"
+        C -> Foo 3 3.5 "5"
 
 
 

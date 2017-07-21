@@ -7,9 +7,16 @@ def parse_list(items):
     return [x.strip() for x in items.split(',')]
 
 
-def indent(s):
+def _indent(s):
     lines = s.split('\n')
     return '\n'.join(['    ' + x if x else '' for x in lines])
+
+
+def indent(s, levels=1):
+    result = s
+    for i in range(levels):
+        result = _indent(result)
+    return result
 
 
 def elm_whitespace(f):
@@ -27,9 +34,7 @@ def _list_single_line(items, *, start_char='[', end_char=']', item_separator_cha
     if not items:
         return f'{start_char}{end_char}'
 
-    r = ''
-
-    r += f'{start_char} {items[0]}'
+    r = f'{start_char} {items[0]}'
 
     for item in items[1:]:
         r += f'{item_separator_char} {item}'
@@ -47,9 +52,7 @@ def _list(items, *, start_char='[', end_char=']', item_separator_char=','):
     if not items:
         return f'{start_char}{end_char}\n'
 
-    r = ''
-
-    r += f'{start_char} {items[0]}'
+    r = f'{start_char} {items[0]}'
 
     for item in items[1:]:
         r += f'\n{item_separator_char} {item}'
@@ -90,7 +93,8 @@ def _enum(name, definition):
     return f"""{_union(name, definition)}
 
 
-{name.lower()}_list = {_list_single_line(definition)}"""
+{name.lower()}_list =
+    {_list_single_line(definition)}"""
 
 
 @elm_whitespace
@@ -133,8 +137,11 @@ def _enhanced_enum(name, enum_definition, definition, rows):
     def to_str(value):
         return " ".join([f'"{x}"' if isinstance(x, str) else f'{x}' for x in value])
 
-    items = [f'({key}, {name} {to_str(value)})' for key, value in rows.items()]
-    r += f'{name.lower()} = Dict.fromList\n' + indent(_list(items=items))
+    items = '\n'.join([f'{key} -> {name} {to_str(value)}' for key, value in rows.items()])
+    r += f"""\
+{name.lower()}_data input =
+    case input of
+{indent(items, levels=2)}"""
     return r
 
 
