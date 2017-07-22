@@ -4,14 +4,30 @@ from cogapp import Cog
 
 import os
 from os.path import join
+from fnmatch import fnmatch
 
 paths = []
 
-# TODO: read .gitignore for paths to ignore
+try:
+    with open('.gitignore', 'r') as f:
+        git_ignore_rules = [x.strip() for x in f.readlines() if x] + ['.git']
+except IOError:
+    git_ignore_rules = []
+
+
+def ignored(x):
+    for rule in git_ignore_rules:
+        if fnmatch(x, rule):
+            return True
+
+    return False
+
 
 for root, dirs, files in os.walk('.'):
+    dirs[:] = [x for x in dirs if not ignored(x)]
+
     for filename in files:
-        if filename.endswith('.elm'):
+        if filename.endswith('.elm') and not ignored(filename):
             paths.append(join(root, filename))
 
 Cog().main(['executable_path_is_irrelevant', '-p', 'from elm import *', '-r'] + paths)
