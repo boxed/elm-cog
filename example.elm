@@ -1,8 +1,5 @@
 module Main exposing (..)
 
-import Dict
-
-
 -- [[[cog list_of('foo', '1, 2, 3') ]]]
 
 
@@ -35,8 +32,7 @@ type Foo
     | C
 
 
-foo_list = 
-
+foo_list =
     [ A, B, C ]
 
 
@@ -85,8 +81,7 @@ type Foo
     | C
 
 
-foo_list = 
-
+foo_list =
     [ A, B, C ]
 
 
@@ -98,10 +93,15 @@ type alias Foo_row =
 
 
 foo_data input =
-     case input of
-        A -> Foo 1 1.5 "3"
-        B -> Foo 2 2.5 "4"
-        C -> Foo 3 3.5 "5"
+    case input of
+        A ->
+            Foo 1 1.5 "3"
+
+        B ->
+            Foo 2 2.5 "4"
+
+        C ->
+            Foo 3 3.5 "5"
 
 
 

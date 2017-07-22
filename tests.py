@@ -135,9 +135,12 @@ type alias Foo_row =
 
 foo_data input =
     case input of
-        A -> Foo 1 1.5 "3"
-        B -> Foo 2 2.5 "4"
-        C -> Foo 3 3.5 "5"
+        A ->
+            Foo 1 1.5 "3"
+        B ->
+            Foo 2 2.5 "4"
+        C ->
+            Foo 3 3.5 "5"
 
 
 
