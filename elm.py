@@ -137,7 +137,7 @@ def _enhanced_enum(name, enum_definition, definition, rows):
     def to_str(value):
         return " ".join([f'"{x}"' if isinstance(x, str) else f'{x}' for x in value])
 
-    items = '\n'.join([f'{key} ->\n' + indent(f'{name} {to_str(value)}\n') for key, value in rows.items()])
+    items = '\n'.join([f'{key} ->\n' + indent(f'{name}_row {to_str(value)}\n') for key, value in rows.items()])
     items = items[:-1]  # remove last newline
     r += f"""\
 {name.lower()}_data input =

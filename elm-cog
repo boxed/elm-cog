@@ -7,6 +7,8 @@ from os.path import join
 
 paths = []
 
+# TODO: read .gitignore for paths to ignore
+
 for root, dirs, files in os.walk('.'):
     for filename in files:
         if filename.endswith('.elm'):

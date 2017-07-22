@@ -12,10 +12,10 @@ foo =
 
 
 -- [[[end]]]
--- [[[cog union('Foo', 'A, B, C') ]]]
+-- [[[cog union('Bar', 'A, B, C') ]]]
 
 
-type Foo
+type Bar
     = A
     | B
     | C
@@ -23,25 +23,25 @@ type Foo
 
 
 -- [[[end]]]
--- [[[cog enum('Foo', 'A, B, C') ]]]
+-- [[[cog enum('Baz', 'D, E, F') ]]]
 
 
-type Foo
-    = A
-    | B
-    | C
+type Baz
+    = D
+    | E
+    | F
 
 
-foo_list =
-    [ A, B, C ]
+baz_list =
+    [ D, E, F ]
 
 
 
 -- [[[end]]]
--- [[[cog record_alias('Foo', 'a : Int, b : String') ]]]
+-- [[[cog record_alias('Foobar', 'a : Int, b : String') ]]]
 
 
-type alias Foo =
+type alias Foobar =
     { a : Int
     , b : String
     }
@@ -49,10 +49,10 @@ type alias Foo =
 
 
 -- [[[end]]]
--- [[[cog record('foo', 'a = 1, b = 1.5, c = "bar"') ]]]
+-- [[[cog record('quux', 'a = 1, b = 1.5, c = "bar"') ]]]
 
 
-foo =
+quux =
     { a = 1
     , b = 1.5
     , c = "bar"
@@ -63,8 +63,8 @@ foo =
 -- [[[end]]]
 -- [[[cog
 -- enhanced_enum(
---     'Foo',
---     'A, B, C',
+--     'EnhancedFoo',
+--     'G, H, J',
 --     'some_data1 : Int, some_data2 : Float, display_name : String',
 --     dict(
 --         A=(1, 1.5, "3"),
@@ -75,33 +75,33 @@ foo =
 -- ]]]
 
 
-type Foo
-    = A
-    | B
-    | C
+type EnhancedFoo
+    = G
+    | H
+    | J
 
 
-foo_list =
-    [ A, B, C ]
+enhancedfoo_list =
+    [ G, H, J ]
 
 
-type alias Foo_row =
+type alias EnhancedFoo_row =
     { some_data1 : Int
     , some_data2 : Float
     , display_name : String
     }
 
 
-foo_data input =
+enhancedfoo_data input =
     case input of
         A ->
-            Foo 1 1.5 "3"
+            EnhancedFoo_row 1 1.5 "3"
 
         B ->
-            Foo 2 2.5 "4"
+            EnhancedFoo_row 2 2.5 "4"
 
         C ->
-            Foo 3 3.5 "5"
+            EnhancedFoo_row 3 3.5 "5"
 
 
 
