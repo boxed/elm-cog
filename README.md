@@ -13,3 +13,22 @@ Features:
 - Record alias
 - Record
 - Enhanced enums: an enum with an associated Dict for extra data
+
+
+## Usage
+
+1. Install my fork of Cog: 
+
+```shell
+hg clone ssh://hg@bitbucket.org/boxed/cog
+cd cog
+python setup.py install
+```
+
+(I have sent a pull request for the feature I need, hopefully you can at some point use standard Cog)
+
+2. Copy `elm.py` and `elm-cog` to your source tree.  
+
+3. Run `elm-cog` to do the actual code generation.
+
+I know it's a bit clunky right now, but this tool is still in a prototype stage. Let me know if you find it useful!
