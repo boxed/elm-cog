@@ -134,19 +134,52 @@ def enum(name, definition):
     cog.out(_enum(name=name, definition=definition))
     
 
-def _record_alias(name, definition, type_info):
-    definition = parse_list(definition)
-    assert len(definition) == len(type_info)
+def _record_alias(name, type_info):
     return f'type alias {name} =\n' + indent(_list(
-        items=[f'{item} : {elm_type_by_python_type(type_info[item])}' for item in definition],
+        items=[f'{item} : {elm_type_by_python_type(type_info[item])}' for item in type_info.keys()],
         start_char='{',
         end_char='}',
     ))
 
 
 @elm_whitespace
-def record_alias(name, definition, type_info):
-    cog.out(_record_alias(name=name, definition=definition, type_info=type_info))
+def record_alias(name, type_info):
+    cog.out(_record_alias(name=name, type_info=type_info))
+
+
+def _record_alias_with_json(name, type_info):
+    r = _record_alias(name=name, type_info=type_info)
+
+    r += '\n\n\n'
+
+
+    def decoder_name_for_type(t):
+        if isinstance(t, str):
+            return lower_first(t) + 'Decoder'
+
+        return {
+            int: 'Json.int',
+            float: 'Json.float',
+            str: 'Json.string',
+        }[t]
+
+    fields = []
+    for key, value in type_info.items():
+        fields.append(f'|> required "{key}" {decoder_name_for_type(value)}')
+
+    fields = '\n'.join(fields)
+
+    decoder_name = f'{lower_first(name)}Decoder'
+    r += f"""{decoder_name} : Decoder {name}
+{decoder_name} =
+    decode {name}
+{indent(fields, levels=2)}"""
+    return r
+
+
+@elm_whitespace
+def record_alias_with_json(name, type_info):
+    cog.out(_record_alias_with_json(name=name, type_info=type_info))
 
 
 def _record(definition: Dict[str, Any]):
@@ -160,12 +193,11 @@ def record(name, definition: Dict[str, Any]):
 
 def _enhanced_enum(name, rows, type_info):
     enum_definition = list(rows.keys())
-    record_items = list(rows.values())[0].keys()
     r = _enum(name, enum_definition)
 
     r += '\n\n\n'
 
-    r += _record_alias(name=name + '_row', definition=[lower_first(x) for x in record_items], type_info={lower_first(k): v for k, v in type_info.items()})
+    r += _record_alias(name=name + '_row', type_info={lower_first(k): v for k, v in type_info.items()})
 
     r += '\n\n\n'
 

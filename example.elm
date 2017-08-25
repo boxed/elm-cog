@@ -38,13 +38,32 @@ baz_list =
 
 
 -- [[[end]]]
--- [[[cog record_alias('Foobar', 'a, b', type_info=dict(a=int, b=str)) ]]]
+-- [[[cog record_alias('Foobar', type_info=dict(a=int, b=str)) ]]]
 
 
 type alias Foobar =
     { a : Int
     , b : String
     }
+
+
+
+-- [[[end]]]
+
+-- [[[cog record_alias_with_json('Foobar', type_info=dict(a=int, b=str)) ]]]
+
+
+type alias Foobar =
+    { a : Int
+    , b : String
+    }
+
+
+foobarDecoder : Decoder Foobar
+foobarDecoder =
+    decode Foobar
+        |> required "a" Json.int
+        |> required "b" Json.string
 
 
 

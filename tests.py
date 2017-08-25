@@ -72,13 +72,13 @@ fooBar_list =
 
 def test_record_alias():
     reset()
-    record_alias('Foo', 'A, B, C', type_info=dict(A=int, B=float, C=str))
+    record_alias('FooBar', type_info=dict(a=int, b=float, c=str))
     assert """
 
-type alias Foo =
-    { A : Int
-    , B : Float
-    , C : String
+type alias FooBar =
+    { a : Int
+    , b : Float
+    , c : String
     }
 
 
@@ -142,6 +142,32 @@ fooBar_data input =
 
         C ->
             FooBar_row 3 3.5 "5"
+
+
+
+""" == result()
+
+
+def test_record_alias_with_json():
+    reset()
+    record_alias_with_json('FooBar', type_info=dict(a=int, b=float, c=str, d='CustomType'))
+    assert """
+
+type alias FooBar =
+    { a : Int
+    , b : Float
+    , c : String
+    , d : CustomType
+    }
+
+
+fooBarDecoder : Decoder FooBar
+fooBarDecoder =
+    decode FooBar
+        |> required "a" Json.int
+        |> required "b" Json.float
+        |> required "c" Json.string
+        |> required "d" customTypeDecoder
 
 
 
