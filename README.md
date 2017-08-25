@@ -7,12 +7,18 @@ Code generation for Elm, using Ned Batchelder's Cog. This is useful for two main
 
 Features:
 
-- Lists (`list_of('a, b, c')` or `list_of('a', 'b', 'c')`)
-- Union types (`union('A, B, C')`)
-- Enums (A union type + a list that are always in sync) (`enum('A, B, C')`)
-- Type alias (`type_alias('FooBar', type_info=dict(a=int, b=float, c=str))`
-- Record (`record('foo', dict(a=1, b=1.5, c="bar"))`)
-- Enhanced enums: an enum with an associated Dict for extra data (`enhanced_enum('FooBar', dict(A=dict(some_data1=1, some_data2=1.5, display_name="3"), B=dict(some_data1=2, some_data2=2.5, display_name="4"),)`)
+- Lists 
+  - Example: (`list_of('a, b, c')` or `list_of('a', 'b', 'c')`)
+- Union types 
+  - Example: (`union('A, B, C')`)
+- Enums (A union type + a list that are always in sync) 
+  - Example: (`enum('A, B, C')`)
+- Type alias 
+  - Example: (`type_alias('FooBar', type_info=dict(a=int, b=float, c=str))`
+- Record 
+  - Example: (`record('foo', dict(a=1, b=1.5, c="bar"))`)
+- Enhanced enums: an enum with an associated Dict for extra data 
+  - Example: (`enhanced_enum('FooBar', dict(A=dict(some_data1=1, some_data2=1.5, display_name="3"), B=dict(some_data1=2, some_data2=2.5, display_name="4"),)`)
 - Record alias with generated encoders and decoders (like `enhanced_enum` but you call `type_alias_with_json`)
 
 
@@ -33,3 +39,49 @@ python setup.py install
 3. Run `elm-cog` to do the actual code generation.
 
 I know it's a bit clunky right now, but this tool is still in a prototype stage. Let me know if you find it useful!
+
+## Full example of code generation
+
+You write this in your elm code:
+
+```elm
+-- [[[cog type_alias_with_json('Foobar2', type_info=dict(a=int, b=str, c='CustomType')) ]]]
+-- [[[end]]]
+```
+
+then run `elm-cog` and it will update your file in place to replace the above with:
+
+```elm
+-- [[[cog type_alias_with_json('Foobar2', type_info=dict(a=int, b=str, c='CustomType')) ]]]
+
+
+type alias Foobar2 =
+    { a : Int
+    , b : String
+    , c : CustomType
+    }
+
+
+foobar2Decoder : Json.Decode.Decoder Foobar2
+foobar2Decoder =
+    Json.Decode.Pipeline.decode Foobar2
+        |> Json.Decode.Pipeline.required "a" Json.Decode.int
+        |> Json.Decode.Pipeline.required "b" Json.Decode.string
+        |> Json.Decode.Pipeline.required "c" customTypeDecoder
+
+
+foobar2Encoder : Foobar2 -> Json.Encode.Value
+foobar2Encoder record =
+    Json.Encode.object
+        [ ( "a", Json.Encode.int record.a )
+        , ( "b", Json.Encode.string record.b )
+        , ( "c", customTypeEncoder record.c )
+        ]
+
+
+
+-- [[[end]]]
+
+```
+
+The output is formatted accordning to `elm-format` already, so no need to run it after.
