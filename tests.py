@@ -161,13 +161,23 @@ type alias FooBar =
     }
 
 
-fooBarDecoder : Decoder FooBar
+fooBarDecoder : Json.Decode.Decoder FooBar
 fooBarDecoder =
-    decode FooBar
-        |> required "a" Json.int
-        |> required "b" Json.float
-        |> required "c" Json.string
-        |> required "d" customTypeDecoder
+    Json.Decode.Pipeline.decode FooBar
+        |> Json.Decode.Pipeline.required "a" Json.Decode.int
+        |> Json.Decode.Pipeline.required "b" Json.Decode.float
+        |> Json.Decode.Pipeline.required "c" Json.Decode.string
+        |> Json.Decode.Pipeline.required "d" customTypeDecoder
+
+
+fooBarEncoder : FooBar -> Json.Encode.Value
+fooBarEncoder record =
+    Json.Encode.object
+        [ ( "a", Json.Encode.int record.a )
+        , ( "b", Json.Encode.float record.b )
+        , ( "c", Json.Encode.string record.c )
+        , ( "d", customTypeEncoder record.d )
+        ]
 
 
 

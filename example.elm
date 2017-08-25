@@ -1,5 +1,10 @@
 module Main exposing (..)
 
+import Json.Decode
+import Json.Decode.Pipeline
+import Json.Encode
+
+
 -- [[[cog list_of('foo', '1, 2, 3') ]]]
 
 
@@ -49,27 +54,32 @@ type alias Foobar =
 
 
 -- [[[end]]]
+-- [[[cog record_alias_with_json('Foobar2', type_info=dict(a=int, b=str)) ]]]
 
--- [[[cog record_alias_with_json('Foobar', type_info=dict(a=int, b=str)) ]]]
 
-
-type alias Foobar =
+type alias Foobar2 =
     { a : Int
     , b : String
     }
 
 
-foobarDecoder : Decoder Foobar
-foobarDecoder =
-    decode Foobar
-        |> required "a" Json.int
-        |> required "b" Json.string
+foobar2Decoder : Json.Decode.Decoder Foobar2
+foobar2Decoder =
+    Json.Decode.Pipeline.decode Foobar2
+        |> Json.Decode.Pipeline.required "a" Json.Decode.int
+        |> Json.Decode.Pipeline.required "b" Json.Decode.string
+
+
+foobar2Encoder : Foobar2 -> Json.Encode.Value
+foobar2Encoder record =
+    Json.Encode.object
+        [ ( "a", Json.Encode.int record.a )
+        , ( "b", Json.Encode.string record.b )
+        ]
 
 
 
 -- [[[end]]]
-
-
 -- [[[cog record('quux', dict(a=1, b=1.5, c="bar", d=ElmLiteral('D'))) ]]]
 
 
