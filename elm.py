@@ -134,7 +134,7 @@ def enum(name, definition):
     cog.out(_enum(name=name, definition=definition))
     
 
-def _record_alias(name, type_info):
+def _type_alias(name, type_info):
     return f'type alias {name} =\n' + indent(_list(
         items=[f'{item} : {elm_type_by_python_type(type_info[item])}' for item in type_info.keys()],
         start_char='{',
@@ -143,12 +143,12 @@ def _record_alias(name, type_info):
 
 
 @elm_whitespace
-def record_alias(name, type_info):
-    cog.out(_record_alias(name=name, type_info=type_info))
+def type_alias(name, type_info):
+    cog.out(_type_alias(name=name, type_info=type_info))
 
 
-def _record_alias_with_json(name, type_info):
-    r = _record_alias(name=name, type_info=type_info)
+def _type_alias_with_json(name, type_info):
+    r = _type_alias(name=name, type_info=type_info)
 
     r += '\n\n\n'
 
@@ -186,8 +186,8 @@ def _record_alias_with_json(name, type_info):
 
 
 @elm_whitespace
-def record_alias_with_json(name, type_info):
-    cog.out(_record_alias_with_json(name=name, type_info=type_info))
+def type_alias_with_json(name, type_info):
+    cog.out(_type_alias_with_json(name=name, type_info=type_info))
 
 
 def _record(definition: Dict[str, Any]):
@@ -205,7 +205,7 @@ def _enhanced_enum(name, rows, type_info):
 
     r += '\n\n\n'
 
-    r += _record_alias(name=name + '_row', type_info={lower_first(k): v for k, v in type_info.items()})
+    r += _type_alias(name=name + '_row', type_info={lower_first(k): v for k, v in type_info.items()})
 
     r += '\n\n\n'
 

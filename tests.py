@@ -70,9 +70,9 @@ fooBar_list =
 """ == result()
 
 
-def test_record_alias():
+def test_type_alias():
     reset()
-    record_alias('FooBar', type_info=dict(a=int, b=float, c=str))
+    type_alias('FooBar', type_info=dict(a=int, b=float, c=str))
     assert """
 
 type alias FooBar =
@@ -148,9 +148,9 @@ fooBar_data input =
 """ == result()
 
 
-def test_record_alias_with_json():
+def test_type_alias_with_json():
     reset()
-    record_alias_with_json('FooBar', type_info=dict(a=int, b=float, c=str, d='CustomType'))
+    type_alias_with_json('FooBar', type_info=dict(a=int, b=float, c=str, d='CustomType'))
     assert """
 
 type alias FooBar =

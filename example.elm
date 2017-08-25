@@ -43,7 +43,7 @@ baz_list =
 
 
 -- [[[end]]]
--- [[[cog record_alias('Foobar', type_info=dict(a=int, b=str)) ]]]
+-- [[[cog type_alias('Foobar', type_info=dict(a=int, b=str)) ]]]
 
 
 type alias Foobar =
@@ -54,7 +54,7 @@ type alias Foobar =
 
 
 -- [[[end]]]
--- [[[cog record_alias_with_json('Foobar2', type_info=dict(a=int, b=str)) ]]]
+-- [[[cog type_alias_with_json('Foobar2', type_info=dict(a=int, b=str)) ]]]
 
 
 type alias Foobar2 =

@@ -7,12 +7,13 @@ Code generation for Elm, using Ned Batchelder's Cog. This is useful for two main
 
 Features:
 
-- Lists
-- Union types
-- Enums (A union type + a list that are always in sync)
-- Record alias
-- Record
-- Enhanced enums: an enum with an associated Dict for extra data
+- Lists (`list_of('a, b, c')` or `list_of('a', 'b', 'c')`)
+- Union types (`union('A, B, C')`)
+- Enums (A union type + a list that are always in sync) (`enum('A, B, C')`)
+- Type alias (`type_alias('FooBar', type_info=dict(a=int, b=float, c=str))`
+- Record (`record('foo', dict(a=1, b=1.5, c="bar"))`)
+- Enhanced enums: an enum with an associated Dict for extra data (`enhanced_enum('FooBar', dict(A=dict(some_data1=1, some_data2=1.5, display_name="3"), B=dict(some_data1=2, some_data2=2.5, display_name="4"),)`)
+- Record alias with generated encoders and decoders (like `enhanced_enum` but you call `type_alias_with_json`)
 
 
 ## Usage
