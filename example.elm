@@ -54,12 +54,39 @@ type alias Foobar =
 
 
 -- [[[end]]]
--- [[[cog type_alias_with_json('Foobar2', type_info=dict(a=int, b=str)) ]]]
+-- [[[cog type_alias_with_json('CustomType', type_info=dict(a=int, b=str)) ]]]
+
+
+type alias CustomType =
+    { a : Int
+    , b : String
+    }
+
+
+customTypeDecoder : Json.Decode.Decoder CustomType
+customTypeDecoder =
+    Json.Decode.Pipeline.decode CustomType
+        |> Json.Decode.Pipeline.required "a" Json.Decode.int
+        |> Json.Decode.Pipeline.required "b" Json.Decode.string
+
+
+customTypeEncoder : CustomType -> Json.Encode.Value
+customTypeEncoder record =
+    Json.Encode.object
+        [ ( "a", Json.Encode.int record.a )
+        , ( "b", Json.Encode.string record.b )
+        ]
+
+
+
+-- [[[end]]]
+-- [[[cog type_alias_with_json('Foobar2', type_info=dict(a=int, b=str, c='CustomType')) ]]]
 
 
 type alias Foobar2 =
     { a : Int
     , b : String
+    , c : CustomType
     }
 
 
@@ -68,6 +95,7 @@ foobar2Decoder =
     Json.Decode.Pipeline.decode Foobar2
         |> Json.Decode.Pipeline.required "a" Json.Decode.int
         |> Json.Decode.Pipeline.required "b" Json.Decode.string
+        |> Json.Decode.Pipeline.required "c" customTypeDecoder
 
 
 foobar2Encoder : Foobar2 -> Json.Encode.Value
@@ -75,6 +103,7 @@ foobar2Encoder record =
     Json.Encode.object
         [ ( "a", Json.Encode.int record.a )
         , ( "b", Json.Encode.string record.b )
+        , ( "c", customTypeEncoder record.c )
         ]
 
 
