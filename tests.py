@@ -53,16 +53,16 @@ type Foo
 
 def test_enum():
     reset()
-    enum('Foo', 'A, B, C')
+    enum('FooBar', 'A, B, C')
     assert """
 
-type Foo
+type FooBar
     = A
     | B
     | C
 
 
-foo_list =
+fooBar_list =
     [ A, B, C ]
 
 
@@ -72,7 +72,7 @@ foo_list =
 
 def test_record_alias():
     reset()
-    record_alias('Foo', 'A : Int, B : Float, C : String')
+    record_alias('Foo', 'A, B, C', type_info=dict(A=int, B=float, C=str))
     assert """
 
 type alias Foo =
@@ -88,13 +88,14 @@ type alias Foo =
 
 def test_record():
     reset()
-    record('foo', 'a = 1, b = 1.5, c = "bar"')
+    record('foo', dict(a=1, b=1.5, c="bar", d=ElmLiteral('D')))
     assert """
 
 foo =
     { a = 1
     , b = 1.5
     , c = "bar"
+    , d = D
     }
 
 
@@ -105,44 +106,42 @@ foo =
 def test_enhanced_enum():
     reset()
     enhanced_enum(
-        'Foo',
-        'A, B, C',
-        'some_data1 : Int, some_data2 : Float, display_name : String',
+        'FooBar',
         dict(
-            A=(1, 1.5, "3"),
-            B=(2, 2.5, "4"),
-            C=(3, 3.5, "5"),
+            A=dict(some_data1=1, some_data2=1.5, display_name="3"),
+            B=dict(some_data1=2, some_data2=2.5, display_name="4"),
+            C=dict(some_data1=3, some_data2=3.5, display_name="5"),
         )
     )
     assert """
 
-type Foo
+type FooBar
     = A
     | B
     | C
 
 
-foo_list =
+fooBar_list =
     [ A, B, C ]
 
 
-type alias Foo_row =
+type alias FooBar_row =
     { some_data1 : Int
     , some_data2 : Float
     , display_name : String
     }
 
 
-foo_data input =
+fooBar_data input =
     case input of
         A ->
-            Foo_row 1 1.5 "3"
+            FooBar_row 1 1.5 "3"
 
         B ->
-            Foo_row 2 2.5 "4"
+            FooBar_row 2 2.5 "4"
 
         C ->
-            Foo_row 3 3.5 "5"
+            FooBar_row 3 3.5 "5"
 
 
 

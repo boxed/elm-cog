@@ -20,7 +20,7 @@ Features:
 1. Install my fork of Cog: 
 
 ```shell
-hg clone ssh://hg@bitbucket.org/boxed/cog
+hg clone https://bitbucket.org/boxed/cog
 cd cog
 python setup.py install
 ```

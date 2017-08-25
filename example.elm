@@ -38,7 +38,7 @@ baz_list =
 
 
 -- [[[end]]]
--- [[[cog record_alias('Foobar', 'a : Int, b : String') ]]]
+-- [[[cog record_alias('Foobar', 'a, b', type_info=dict(a=int, b=str)) ]]]
 
 
 type alias Foobar =
@@ -49,13 +49,16 @@ type alias Foobar =
 
 
 -- [[[end]]]
--- [[[cog record('quux', 'a = 1, b = 1.5, c = "bar"') ]]]
+
+
+-- [[[cog record('quux', dict(a=1, b=1.5, c="bar", d=ElmLiteral('D'))) ]]]
 
 
 quux =
     { a = 1
     , b = 1.5
     , c = "bar"
+    , d = D
     }
 
 
@@ -64,13 +67,11 @@ quux =
 -- [[[cog
 -- enhanced_enum(
 --     'EnhancedFoo',
---     'G, H, J',
---     'some_data1 : Int, some_data2 : Float, display_name : String',
 --     dict(
---         A=(1, 1.5, "3"),
---         B=(2, 2.5, "4"),
---         C=(3, 3.5, "5"),
---     )
+--         G=dict(some_data1=1, some_data2=1.5, display_name="3"),
+--         H=dict(some_data1=2, some_data2=2.5, display_name="4"),
+--         J=dict(some_data1=3, some_data2=3.5, display_name="5"),
+--     ),
 -- )
 -- ]]]
 
@@ -94,13 +95,13 @@ type alias EnhancedFoo_row =
 
 enhancedfoo_data input =
     case input of
-        A ->
+        G ->
             EnhancedFoo_row 1 1.5 "3"
 
-        B ->
+        H ->
             EnhancedFoo_row 2 2.5 "4"
 
-        C ->
+        J ->
             EnhancedFoo_row 3 3.5 "5"
 
 

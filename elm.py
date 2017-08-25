@@ -1,7 +1,39 @@
+from typing import Union, Dict, Any
+
 import cog
 
 
-def parse_list(items):
+def lower_first(s):
+    return s[0].lower() + s[1:]
+
+
+class ElmLiteral:
+    def __init__(self, s):
+        self.s = s
+
+    def __str__(self):
+        return self.s
+
+
+def elm_literal(s):
+    if isinstance(s, ElmLiteral):
+        return str(s)
+
+    if isinstance(s, str):
+        return f'"{s}"'
+
+    return f'{s}'
+
+
+def elm_type_by_python_type(t):
+    return {
+        int: 'Int',
+        float: 'Float',
+        str: 'String',
+    }.get(t, t)
+
+
+def parse_list(items: Union[tuple, list, str]):
     if isinstance(items, (tuple, list)):
         return items
     return [x.strip() for x in items.split(',')]
@@ -93,7 +125,7 @@ def _enum(name, definition):
     return f"""{_union(name, definition)}
 
 
-{name.lower()}_list =
+{lower_first(name)}_list =
     {_list_single_line(definition)}"""
 
 
@@ -102,50 +134,55 @@ def enum(name, definition):
     cog.out(_enum(name=name, definition=definition))
     
 
-def _record_alias(name, definition):
+def _record_alias(name, definition, type_info):
+    definition = parse_list(definition)
+    assert len(definition) == len(type_info)
     return f'type alias {name} =\n' + indent(_list(
-        items=definition,
+        items=[f'{item} : {elm_type_by_python_type(type_info[item])}' for item in definition],
         start_char='{',
         end_char='}',
     ))
 
 
 @elm_whitespace
-def record_alias(name, definition):
-    cog.out(_record_alias(name=name, definition=definition))
+def record_alias(name, definition, type_info):
+    cog.out(_record_alias(name=name, definition=definition, type_info=type_info))
 
 
-def _record(name, definition):
-    return _list(definition, start_char='{', end_char='}')
+def _record(definition: Dict[str, Any]):
+    return _list([f'{key} = {elm_literal(value)}' for key, value in definition.items()], start_char='{', end_char='}')
 
 
 @elm_whitespace
-def record(name, definition):
-    cog.out(f'{name} =\n' + indent(_record(name=name, definition=definition)))
+def record(name, definition: Dict[str, Any]):
+    cog.out(f'{name} =\n' + indent(_record(definition=definition)))
 
 
-def _enhanced_enum(name, enum_definition, definition, rows):
+def _enhanced_enum(name, rows, type_info):
+    enum_definition = list(rows.keys())
+    record_items = list(rows.values())[0].keys()
     r = _enum(name, enum_definition)
-    assert len(parse_list(enum_definition)) == len(rows.keys())
 
     r += '\n\n\n'
 
-    r += _record_alias(name + '_row', definition)
+    r += _record_alias(name=name + '_row', definition=[lower_first(x) for x in record_items], type_info={lower_first(k): v for k, v in type_info.items()})
 
     r += '\n\n\n'
 
     def to_str(value):
-        return " ".join([f'"{x}"' if isinstance(x, str) else f'{x}' for x in value])
+        return " ".join([elm_literal(x) for x in value])
 
-    items = '\n'.join([f'{key} ->\n' + indent(f'{name}_row {to_str(value)}\n') for key, value in rows.items()])
+    items = '\n'.join([f'{key} ->\n' + indent(f'{name}_row {to_str(value.values())}\n') for key, value in rows.items()])
     items = items[:-1]  # remove last newline
     r += f"""\
-{name.lower()}_data input =
+{lower_first(name)}_data input =
     case input of
 {indent(items, levels=2)}"""
     return r
 
 
 @elm_whitespace
-def enhanced_enum(name, enum_definition, definition, rows):
-    cog.out(_enhanced_enum(name=name, enum_definition=enum_definition, definition=definition, rows=rows))
+def enhanced_enum(name, rows: Dict[str, dict], type_info=None):
+    if type_info is None:
+        type_info = {key: elm_type_by_python_type(type(value)) for key, value in list(rows.values())[0].items()}
+    cog.out(_enhanced_enum(name=name, type_info=type_info, rows=rows))
