@@ -82,7 +82,7 @@ type EnhancedFoo
     | J
 
 
-enhancedfoo_list =
+enhancedFoo_list =
     [ G, H, J ]
 
 
@@ -93,7 +93,7 @@ type alias EnhancedFoo_row =
     }
 
 
-enhancedfoo_data input =
+enhancedFoo_data input =
     case input of
         G ->
             EnhancedFoo_row 1 1.5 "3"
