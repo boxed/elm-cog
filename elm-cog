@@ -16,6 +16,9 @@ except IOError:
 
 
 def ignored(x):
+    if x == 'elm-stuff':
+        return True
+
     for rule in git_ignore_rules:
         if fnmatch(x, rule):
             return True
