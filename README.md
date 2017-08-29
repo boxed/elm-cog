@@ -34,7 +34,7 @@ python3 setup.py install
 
 (I have sent a pull request for the feature I need, hopefully you can at some point use standard Cog)
 
-2. Copy `elm.py` and `elm-cog` to your source tree.  
+ 2. From the elm-cog repo, copy https://raw.githubusercontent.com/boxed/elm-cog/master/elm.py and https://raw.githubusercontent.com/boxed/elm-cog/master/elm-cog to your source tree.  
 
 3. Run `elm-cog` to do the actual code generation.
 
