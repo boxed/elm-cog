@@ -29,7 +29,7 @@ Features:
 ```shell
 hg clone https://bitbucket.org/boxed/cog
 cd cog
-python setup.py install
+python3 setup.py install
 ```
 
 (I have sent a pull request for the feature I need, hopefully you can at some point use standard Cog)
