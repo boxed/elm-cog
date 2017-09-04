@@ -1,6 +1,13 @@
-from typing import Union, Dict, Any
+from typing import *
 
 import cog
+
+
+String = str
+Int = int
+Float = float
+Bool = bool
+Maybe = Optional
 
 
 def lower_first(s):
@@ -26,10 +33,27 @@ def elm_literal(s):
 
 
 def elm_type_by_python_type(t):
+    if isinstance(t, ElmLiteral):
+        return str(t)
+
+    typing_origin = getattr(t, '__origin__', None)
+    if typing_origin is List:
+        return f'( List {elm_type_by_python_type(t.__args__[0])} )'
+
+    if typing_origin is Dict:
+        return f'( Dict {elm_type_by_python_type(t.__args__[0])} {elm_type_by_python_type(t.__args__[1])} )'
+
+    if typing_origin is Union and t.__args__[1] is type(None):
+        return f'( Maybe {elm_type_by_python_type(t.__args__[0])} )'
+
+    if '_ForwardRef' in str(t):
+        return t.__forward_arg__
+
     return {
         int: 'Int',
         float: 'Float',
         str: 'String',
+        bool: 'Bool',
     }.get(t, t)
 
 
@@ -147,47 +171,64 @@ def type_alias(name, type_info):
     cog.out(_type_alias(name=name, type_info=type_info))
 
 
-def _type_alias_with_json(name, type_info):
+def _type_alias_with_json(name, type_info, decoder, encoder):
     r = _type_alias(name=name, type_info=type_info)
 
     r += '\n\n\n'
 
+    if decoder:
+        def decoder_name_for_type(t):
+            if isinstance(t, str):
+                return lower_first(t) + 'Decoder'
 
-    def decoder_name_for_type(t):
-        if isinstance(t, str):
-            return lower_first(t) + 'Decoder'
+            typing_origin = getattr(t, '__origin__', None)
+            if typing_origin is List:
+                return f'( Json.Decode.list {decoder_name_for_type(t.__args__[0])} )'
 
-        return {
-            int: 'Json.Decode.int',
-            float: 'Json.Decode.float',
-            str: 'Json.Decode.string',
-        }[t]
+            if typing_origin is Dict:
+                assert t.__args__[0] is str
+                return f'( Json.Decode.dict {decoder_name_for_type(t.__args__[1])} )'
 
-    decoder_fields = '\n'.join([f'|> Json.Decode.Pipeline.required "{key}" {decoder_name_for_type(value)}' for key, value in type_info.items()])
+            if typing_origin is Union and t.__args__[1] is type(None):
+                return f'( Json.Decode.maybe {decoder_name_for_type(t.__args__[0])} )'
 
-    decoder_name = f'{lower_first(name)}Decoder'
-    r += f"""{decoder_name} : Json.Decode.Decoder {name}
+            if '_ForwardRef' in str(t):
+                return decoder_name_for_type(t.__forward_arg__)
+
+            return {
+                int: 'Json.Decode.int',
+                float: 'Json.Decode.float',
+                str: 'Json.Decode.string',
+            }[t]
+
+        decoder_fields = '\n'.join([f'|> Json.Decode.Pipeline.required "{key}" {decoder_name_for_type(value)}' for key, value in type_info.items()])
+
+        decoder_name = f'{lower_first(name)}Decoder'
+        r += f"""{decoder_name} : Json.Decode.Decoder {name}
 {decoder_name} =
     Json.Decode.Pipeline.decode {name}
-{indent(decoder_fields, levels=2)}
+{indent(decoder_fields, levels=2)}"""
 
+        if encoder:
+            r += '\n\n\n'
 
-"""
-    def encoder_name_for_type(t):
-        return decoder_name_for_type(t).replace("Decode", "Encode")
+    if encoder:
+        def encoder_name_for_type(t):
+            return decoder_name_for_type(t).replace("Decode", "Encode")
 
-    encoder_fields = [f'( "{key}", {encoder_name_for_type(value)} record.{key} )' for key, value in type_info.items()]
-    encoder_name = f'{lower_first(name)}Encoder'
-    r += f"""{encoder_name} : {name} -> Json.Encode.Value
+        encoder_fields = [f'( "{key}", {encoder_name_for_type(value)} record.{key} )' for key, value in type_info.items()]
+        encoder_name = f'{lower_first(name)}Encoder'
+        r += f"""{encoder_name} : {name} -> Json.Encode.Value
 {encoder_name} record =
     Json.Encode.object
 {indent(_list(encoder_fields), levels=2)}"""
+
     return r
 
 
 @elm_whitespace
-def type_alias_with_json(name, type_info):
-    cog.out(_type_alias_with_json(name=name, type_info=type_info))
+def type_alias_with_json(name, type_info, decoder=True, encoder=True):
+    cog.out(_type_alias_with_json(name=name, type_info=type_info, decoder=decoder, encoder=encoder))
 
 
 def _record(definition: Dict[str, Any]):
