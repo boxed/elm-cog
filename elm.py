@@ -172,9 +172,7 @@ def type_alias(name, type_info):
 
 
 def _type_alias_with_json(name, type_info, decoder, encoder):
-    r = _type_alias(name=name, type_info=type_info)
-
-    r += '\n\n\n'
+    r = [_type_alias(name=name, type_info=type_info)]
 
     if decoder:
         def decoder_name_for_type(t):
@@ -204,13 +202,10 @@ def _type_alias_with_json(name, type_info, decoder, encoder):
         decoder_fields = '\n'.join([f'|> Json.Decode.Pipeline.required "{key}" {decoder_name_for_type(value)}' for key, value in type_info.items()])
 
         decoder_name = f'{lower_first(name)}Decoder'
-        r += f"""{decoder_name} : Json.Decode.Decoder {name}
+        r.append(f"""{decoder_name} : Json.Decode.Decoder {name}
 {decoder_name} =
     Json.Decode.Pipeline.decode {name}
-{indent(decoder_fields, levels=2)}"""
-
-        if encoder:
-            r += '\n\n\n'
+{indent(decoder_fields, levels=2)}""")
 
     if encoder:
         def encoder_name_for_type(t):
@@ -218,12 +213,12 @@ def _type_alias_with_json(name, type_info, decoder, encoder):
 
         encoder_fields = [f'( "{key}", {encoder_name_for_type(value)} record.{key} )' for key, value in type_info.items()]
         encoder_name = f'{lower_first(name)}Encoder'
-        r += f"""{encoder_name} : {name} -> Json.Encode.Value
+        r.append(f"""{encoder_name} : {name} -> Json.Encode.Value
 {encoder_name} record =
     Json.Encode.object
-{indent(_list(encoder_fields), levels=2)}"""
+{indent(_list(encoder_fields), levels=2)}""")
 
-    return r
+    return '\n\n\n'.join(r)
 
 
 @elm_whitespace
