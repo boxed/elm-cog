@@ -36,7 +36,9 @@ def elm_type_by_python_type(t):
     if isinstance(t, ElmLiteral):
         return str(t)
 
-    assert not isinstance(t, str), 'A string is not a type'
+    if isinstance(t, str):
+        return t
+
 
     typing_origin = getattr(t, '__origin__', None)
     if typing_origin is List:
@@ -178,7 +180,8 @@ def _type_alias_with_json(name, type_info, decoder, encoder):
 
     if decoder:
         def decoder_name_for_type(t):
-            assert not isinstance(t, str), 'A string is not a type'
+            if isinstance(t, str):
+                return lower_first(t) + 'Decoder'
 
             typing_origin = getattr(t, '__origin__', None)
             if typing_origin is List:
