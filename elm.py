@@ -197,6 +197,7 @@ def _type_alias_with_json(name, type_info, decoder, encoder):
                 int: 'Json.Decode.int',
                 float: 'Json.Decode.float',
                 str: 'Json.Decode.string',
+                bool: 'Json.Decode.bool',
             }[t]
 
         decoder_fields = '\n'.join([f'|> Json.Decode.Pipeline.required "{key}" {decoder_name_for_type(value)}' for key, value in type_info.items()])
