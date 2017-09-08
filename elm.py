@@ -36,6 +36,8 @@ def elm_type_by_python_type(t):
     if isinstance(t, ElmLiteral):
         return str(t)
 
+    assert not isinstance(t, str), 'A string is not a type'
+
     typing_origin = getattr(t, '__origin__', None)
     if typing_origin is List:
         return f'( List {elm_type_by_python_type(t.__args__[0])} )'
@@ -54,7 +56,7 @@ def elm_type_by_python_type(t):
         float: 'Float',
         str: 'String',
         bool: 'Bool',
-    }.get(t, t)
+    }.get(t, t.__name__)
 
 
 def parse_list(items: Union[tuple, list, str]):
@@ -176,8 +178,7 @@ def _type_alias_with_json(name, type_info, decoder, encoder):
 
     if decoder:
         def decoder_name_for_type(t):
-            if isinstance(t, str):
-                return lower_first(t) + 'Decoder'
+            assert not isinstance(t, str), 'A string is not a type'
 
             typing_origin = getattr(t, '__origin__', None)
             if typing_origin is List:
@@ -198,7 +199,7 @@ def _type_alias_with_json(name, type_info, decoder, encoder):
                 float: 'Json.Decode.float',
                 str: 'Json.Decode.string',
                 bool: 'Json.Decode.bool',
-            }[t]
+            }.get(t, lower_first(t.__name__) + 'Decoder')
 
         decoder_fields = '\n'.join([f'|> Json.Decode.Pipeline.required "{key}" {decoder_name_for_type(value)}' for key, value in type_info.items()])
 
