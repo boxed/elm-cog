@@ -1,5 +1,6 @@
-from cog import reset, result
-from elm import *
+from collections import OrderedDict
+
+from elm import indent, _union, _enum, _type_alias, ElmLiteral, _enhanced_enum, _type_alias_with_json, _list_of, _named_record
 
 
 def test_indent():
@@ -8,8 +9,7 @@ def test_indent():
 
 
 def test_list_of():
-    reset()
-    list_of('foo', 'A, B, C')
+    result = _list_of('foo', 'A, B, C')
     assert """
 
 foo =
@@ -18,27 +18,21 @@ foo =
     , C
     ]
 
-
-
-""" == result()
+""".strip() == result
 
 
 def test_list_of_single_line():
-    reset()
-    list_of('foo', 'A, B, C', single_line=True)
+    result = _list_of('foo', 'A, B, C', single_line=True)
     assert """
 
 foo =
     [ A, B, C ]
 
-
-
-""" == result()
+""".strip() == result
 
 
 def test_union():
-    reset()
-    union('Foo', 'A, B, C')
+    result = _union('Foo', 'A, B, C')
     assert """
 
 type Foo
@@ -46,14 +40,11 @@ type Foo
     | B
     | C
 
-
-
-""" == result()
+""".strip() == result
 
 
 def test_enum():
-    reset()
-    enum('FooBar', 'A, B, C')
+    result = _enum('FooBar', 'A, B, C')
     assert """
 
 type FooBar
@@ -62,17 +53,14 @@ type FooBar
     | C
 
 
-fooBar_list =
+fooBarList =
     [ A, B, C ]
 
-
-
-""" == result()
+""".strip() == result
 
 
 def test_type_alias():
-    reset()
-    type_alias('FooBar', type_info=dict(a=int, b=float, c=str))
+    result = _type_alias('FooBar', type_info=OrderedDict([('a', int), ('b', float), ('c', str)]))
     assert """
 
 type alias FooBar =
@@ -81,14 +69,11 @@ type alias FooBar =
     , c : String
     }
 
-
-
-""" == result()
+""".strip() == result
 
 
 def test_record():
-    reset()
-    record('foo', dict(a=1, b=1.5, c="bar", d=ElmLiteral('D')))
+    result = _named_record('foo', OrderedDict([('a', 1), ('b', 1.5), ('c', "bar"), ('d', ElmLiteral('D'))]))
     assert """
 
 foo =
@@ -98,20 +83,17 @@ foo =
     , d = D
     }
 
-
-
-""" == result()
+""".strip() == result
 
 
 def test_enhanced_enum():
-    reset()
-    enhanced_enum(
+    result = _enhanced_enum(
         'FooBar',
-        dict(
-            A=dict(some_data1=1, some_data2=1.5, display_name="3"),
-            B=dict(some_data1=2, some_data2=2.5, display_name="4"),
-            C=dict(some_data1=3, some_data2=3.5, display_name="5"),
-        )
+        OrderedDict([
+            ('A', OrderedDict([('some_data1', 1), ('some_data2', 1.5), ('display_name', "3")])),
+            ('B', OrderedDict([('some_data1', 2), ('some_data2', 2.5), ('display_name', "4")])),
+            ('C', OrderedDict([('some_data1', 3), ('some_data2', 3.5), ('display_name', "5")])),
+        ])
     )
     assert """
 
@@ -121,36 +103,46 @@ type FooBar
     | C
 
 
-fooBar_list =
+fooBarList =
     [ A, B, C ]
 
 
-type alias FooBar_row =
+type alias FooBarRow =
     { some_data1 : Int
     , some_data2 : Float
     , display_name : String
     }
 
 
-fooBar_data input =
+fooBarData : FooBar -> FooBarRow
+fooBarData input =
     case input of
         A ->
-            FooBar_row 1 1.5 "3"
+            FooBarRow 1 1.5 "3"
 
         B ->
-            FooBar_row 2 2.5 "4"
+            FooBarRow 2 2.5 "4"
 
         C ->
-            FooBar_row 3 3.5 "5"
+            FooBarRow 3 3.5 "5"
 
 
+fooBarToDisplayName : FooBar -> String
+fooBarToDisplayName data =
+    case data of
+        A ->
+            "3"
 
-""" == result()
+        B ->
+            "4"
+
+        C ->
+            "5"
+""".strip() == result
 
 
 def test_type_alias_with_json():
-    reset()
-    type_alias_with_json('FooBar', type_info=dict(a=int, b=float, c=str, d='CustomType'))
+    result = _type_alias_with_json('FooBar', type_info=OrderedDict([('a', int), ('b', float), ('c', str), ('d', 'CustomType')]))
     assert """
 
 type alias FooBar =
@@ -179,6 +171,4 @@ fooBarEncoder record =
         , ( "d", customTypeEncoder record.d )
         ]
 
-
-
-""" == result()
+""".strip() == result

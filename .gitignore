@@ -7,3 +7,4 @@ venv
 elm-stuff
 example.js
 elm-package.json
+.pytest_cache
