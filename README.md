@@ -7,24 +7,24 @@ Code generation for Elm, using Ned Batchelder's Cog. This is useful for two main
 
 Features:
 
-- Lists 
+- Lists
   - Example: (`list_of('a, b, c')` or `list_of('a', 'b', 'c')`)
-- Union types 
+- Union types
   - Example: (`union('A, B, C')`)
-- Enums (A union type + a list that are always in sync) 
+- Enums (A union type + a list that are always in sync)
   - Example: (`enum('A, B, C')`)
-- Type alias 
+- Type alias
   - Example: (`type_alias('FooBar', type_info=dict(a=int, b=float, c=str))`
-- Record 
+- Record
   - Example: (`record('foo', dict(a=1, b=1.5, c="bar"))`)
-- Enhanced enums: an enum with an associated Dict for extra data 
+- Enhanced enums: an enum with an associated Dict for extra data
   - Example: (`enhanced_enum('FooBar', dict(A=dict(some_data1=1, some_data2=1.5, display_name="3"), B=dict(some_data1=2, some_data2=2.5, display_name="4"),)`)
 - Record alias with generated encoders and decoders (like `enhanced_enum` but you call `type_alias_with_json`)
 
 
 ## Usage
 
-1. Install my fork of Cog: 
+1. Install my fork of Cog:
 
 ```shell
 hg clone https://bitbucket.org/boxed/cog
@@ -84,4 +84,4 @@ foobar2Encoder record =
 
 ```
 
-The output is formatted accordning to `elm-format` already, so no need to run it after.
+The output will be formatted according to `elm-format` already, so no need to run it after.
